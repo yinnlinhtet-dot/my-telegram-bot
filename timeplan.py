@@ -6,8 +6,8 @@ import ddddocr
 import numpy as np
 from datetime import datetime, timedelta, timezone
 
-#ဒီနေရာမှာchangeပေးပါbro
-BOT_TOKEN = '8813443209:AAG5u_NfIZUdgunQ4t2P0unZvZ_iTG_SMhg'
+# Bot Token အသစ်ကို ထည့်သွင်းပြီးပါပြီ
+BOT_TOKEN = '8628864483:AAEtdYTyv3ducRnE-f22KNH2ea97uEZCfYg'
 GITHUB_TOKEN = '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'
 ADMIN_ID = "7673441360"
 REPO_OWNER = "azin43977-del"
@@ -510,7 +510,7 @@ def iter_codes(mode):
             yield all_generator(6)
     raise ValueError(f"Unsupported scan mode: {mode}")
 
-def format_progress(checked, total=None, speed=0, retries=0):
+def format_progress(checked, total=None, speed=0):
     speed_str = f"{speed:,.0f} codes/min"
     if total is not None:
         bar_length = 20
@@ -521,8 +521,8 @@ def format_progress(checked, total=None, speed=0, retries=0):
             f"🔍Scanning Codes...\n\n"
             f"📦Checked : {checked:,}/{total:,}\n"
             f"📊Progress : {percent:.2f}%\n"
-            f"🔁Retry : {retries}\n"
-            f"⚡Speed : {speed_str}\n"
+             f"🔁Retry : {retries}\n"
+              f"⚡Speed : {speed_str}\n"
             f"[{bar}]"
         )
     return (
@@ -530,7 +530,7 @@ def format_progress(checked, total=None, speed=0, retries=0):
         f"📦Checked : {checked:,}\n"
         f"⚡Speed : {speed_str}\n"
         f"🔁Retry : {retries}\n"
-        f"📊Status : running\n"
+         f"📊Status : running\n"
     )
 
 BATCH_SIZE = 1000
@@ -970,6 +970,7 @@ async def Varify_Captcha(session, session_id, text):
             return session_id
         else:
             return None
+
 
 async def start_polling():
     backoff = 5
