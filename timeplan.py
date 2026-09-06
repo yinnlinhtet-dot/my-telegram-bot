@@ -6,10 +6,10 @@ import ddddocr
 import numpy as np
 from datetime import datetime, timedelta, timezone
 
-# Bot Token အသစ်ကို ထည့်သွင်းပြီးပါပြီ
+# Bot Token နှင့် သင့်ရဲ့ Admin ID အသစ်ကို ထည့်သွင်းပြီးပါပြီ
 BOT_TOKEN = '8628864483:AAEtdYTyv3ducRnE-f22KNH2ea97uEZCfYg'
 GITHUB_TOKEN = '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'
-ADMIN_ID = "7673441360"
+ADMIN_ID = "8991689638"
 REPO_OWNER = "azin43977-del"
 REPO_NAME = "aunggyi"
 ##################
@@ -521,16 +521,14 @@ def format_progress(checked, total=None, speed=0):
             f"🔍Scanning Codes...\n\n"
             f"📦Checked : {checked:,}/{total:,}\n"
             f"📊Progress : {percent:.2f}%\n"
-             f"🔁Retry : {retries}\n"
-              f"⚡Speed : {speed_str}\n"
+            f"⚡Speed : {speed_str}\n"
             f"[{bar}]"
         )
     return (
         f"🔍Scanning Codes...\n\n"
         f"📦Checked : {checked:,}\n"
         f"⚡Speed : {speed_str}\n"
-        f"🔁Retry : {retries}\n"
-         f"📊Status : running\n"
+        f"📊Status : running\n"
     )
 
 BATCH_SIZE = 1000
@@ -970,7 +968,6 @@ async def Varify_Captcha(session, session_id, text):
             return session_id
         else:
             return None
-
 
 async def start_polling():
     backoff = 5
