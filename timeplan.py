@@ -43,6 +43,9 @@ async def web_server():
     await site.start()
 
 async def get_file_content(path):
+    global session
+    if session is None or session.closed:
+        session = aiohttp.ClientSession()
     url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{path}"
     headers = {"Authorization": f"token {GITHUB_TOKEN}"}
     async with session.get(url, headers=headers) as response:
@@ -52,20 +55,15 @@ async def get_file_content(path):
             return json.loads(content), data['sha']
     return None, None
 
-async def update_file_content(path, content, sha, message):
-    url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{path}"
-    headers = {
-        "Authorization": f"token {GITHUB_TOKEN}",
-        "Content-Type": "application/json"
-    }
-    encoded = base64.b64encode(json.dumps(content).encode()).decode()
-    payload = {
-        "message": message,
-        "content": encoded,
-        "sha": sha
-    }
-    async with session.put(url, headers=headers, json=payload) as response:
-        return await response.text()
+def check_key_expiration(key_data):
+    try:
+        expires_str = key_data.get("expires_at", "unknown")
+        if expires_str == "9999-12-31T23:59:59Z" or expires_str == "9999-12-31T23:59:59":
+            return True
+        exp_dt = datetime.fromisoformat(expires_str.replace('Z', '+00:00'))
+        return datetime.now(timezone.utc) < exp_dt
+    except Exception:
+        return True
 
 @bot.message_handler(commands=['start'])
 async def start(message):
@@ -76,7 +74,7 @@ async def handle_key(message):
     global approve
     key = str(message.chat.id)
     auth_list, _ = await get_file_content('auth_list.json')
-    if key in auth_list:
+    if auth_list and key in auth_list:
         valid = check_key_expiration(auth_list[key])
         if valid:
             approve[message.chat.id] = True
@@ -96,3 +94,12 @@ async def handle_key(message):
             message,
             "သင်၏ key ကို registered မလုပ်ရသေးပါ။"
         )
+
+async def main():
+    global session
+    session = aiohttp.ClientSession()
+    await web_server()
+    await bot.infinity_polling()
+
+if __name__ == '__main__':
+    asyncio.run(main())
