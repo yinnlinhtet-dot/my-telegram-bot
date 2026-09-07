@@ -7,7 +7,7 @@ import numpy as np
 from datetime import datetime, timedelta, timezone
 
 # Bot Token နှင့် သင့်ရဲ့ Admin ID အသစ်ကို ထည့်သွင်းရန်
-BOT_TOKEN = '8628864483:AAEtdYTyv3ducRn'
+BOT_TOKEN = '8628864483:AAEtdYTyv3ducRnE-f22KNH2ea97uEZCfYg'
 GITHUB_TOKEN = 'ghp_SznMfaU45MnKdh6ApjN'
 ADMIN_ID = "8991689638"
 REPO_OWNER = "yinnlinhtet-dot"
