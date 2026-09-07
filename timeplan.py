@@ -940,7 +940,7 @@ async def main():
     )
     try:
         asyncio.create_task(web_server())
-        asyncio.create_task(github_update_schedule())
+        asyncio.create_task(github_update_scheduler())
         await start_polling()
     finally:
         await session.close()
