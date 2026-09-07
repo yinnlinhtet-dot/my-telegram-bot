@@ -6,29 +6,18 @@ import ddddocr
 import numpy as np
 from datetime import datetime, timedelta, timezone
 
-# Bot Token နှင့် သင့်ရဲ့ Admin ID အသစ်
+# Bot Token နှင့် သင့်ရဲ့ Admin ID အပြည့်အစုံ
 BOT_TOKEN = '8628864483:AAEtdYTyv3ducRnE-f22KNH2ea97uEZCfYg'
 GITHUB_TOKEN = 'ghp_SznMfaU45MnKdh6ApjN'
 ADMIN_ID = "8991689638"
 REPO_OWNER = "yinnlinhtet-dot"
 REPO_NAME = "my-telegram-bot"
-#####################
 
 SUCCESS_CODE = asyncio.Queue()
 bot = AsyncTeleBot(BOT_TOKEN)
 user_data = {}
 approve = {}
-scan_tasks = {}
-success_messages = {}
-success_texts = {}
-limited_messages = {}
-limited_texts = {}
-captcha_state = {}
 session = None
-_connector = None
-CONCURRENCY = 3000
-_voucher_sem = None
-_start_time = time.monotonic()
 
 async def handle(request):
     return web.Response(text="Bot is awake and running 24/7!")
@@ -77,10 +66,7 @@ async def handle_key(message):
     if user_id == ADMIN_ID:
         approve[message.chat.id] = True
         user_data[message.chat.id] = {}
-        await bot.reply_to(
-            message,
-            "Key မှန်ကန်ပါသည် /input ဖြင့် Session URL ထည့်ပါ"
-        )
+        await bot.reply_to(message, "Key မှန်ကန်ပါသည် /input ဖြင့် Session URL ထည့်ပါ")
         return
 
     auth_list, _ = await get_file_content('auth_list.json')
@@ -89,21 +75,26 @@ async def handle_key(message):
         if valid:
             approve[message.chat.id] = True
             user_data[message.chat.id] = {}
-            await bot.reply_to(
-                message,
-                "Key မှန်ကန်ပါသည် /input ဖြင့် Session URL ထည့်ပါ"
-            )
+            await bot.reply_to(message, "Key မှန်ကန်ပါသည် /input ဖြင့် Session URL ထည့်ပါ")
         else:
             approve[message.chat.id] = False
-            await bot.reply_to(
-                message,
-                "Key Expired ဖြစ်သွားပါပြီ"
-            )
+            await bot.reply_to(message, "Key Expired ဖြစ်သွားပါပြီ")
     else:
-        await bot.reply_to(
-            message,
-            "သင်၏ key ကို registered မလုပ်ရသေးပါ။"
-        )
+        await bot.reply_to(message, "သင်၏ key ကို registered မလုပ်ရသေးပါ။")
+
+@bot.message_handler(commands=['input'])
+async def handle_input(message):
+    if not approve.get(message.chat.id, False):
+        await bot.reply_to(message, "ကျေးဇူးပြု၍ ရှေးဦးစွာ /key ဖြင့် အတည်ပြုပါ။")
+        return
+    
+    url_text = message.text.replace('/input', '').strip()
+    if not url_text:
+        await bot.reply_to(message, "ကျေးဇူးပြု၍ Session URL ထည့်ပေးပါ။")
+        return
+
+    user_data[message.chat.id]['url'] = url_text
+    await bot.reply_to(message, "Session URL ကို လက်ခံရရှိပါပြီ။ ဆက်လက်ဆောင်ရွက်နေပါသည်...")
 
 async def main():
     global session
