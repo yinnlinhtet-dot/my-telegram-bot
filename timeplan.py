@@ -6,7 +6,7 @@ import ddddocr
 import numpy as np
 from datetime import datetime, timedelta, timezone
 
-# Bot Token နှင့် သင့်ရဲ့ Admin ID အသစ်ကို ထည့်သွင်းရန်
+# Bot Token နှင့် သင့်ရဲ့ Admin ID အသစ်
 BOT_TOKEN = '8628864483:AAEtdYTyv3ducRnE-f22KNH2ea97uEZCfYg'
 GITHUB_TOKEN = 'ghp_SznMfaU45MnKdh6ApjN'
 ADMIN_ID = "8991689638"
@@ -72,10 +72,20 @@ async def start(message):
 @bot.message_handler(commands=['key'])
 async def handle_key(message):
     global approve
-    key = str(message.chat.id)
+    user_id = str(message.chat.id)
+    
+    if user_id == ADMIN_ID:
+        approve[message.chat.id] = True
+        user_data[message.chat.id] = {}
+        await bot.reply_to(
+            message,
+            "Key မှန်ကန်ပါသည် /input ဖြင့် Session URL ထည့်ပါ"
+        )
+        return
+
     auth_list, _ = await get_file_content('auth_list.json')
-    if auth_list and key in auth_list:
-        valid = check_key_expiration(auth_list[key])
+    if auth_list and user_id in auth_list:
+        valid = check_key_expiration(auth_list[user_id])
         if valid:
             approve[message.chat.id] = True
             user_data[message.chat.id] = {}
