@@ -7,11 +7,15 @@ import numpy as np
 from datetime import datetime, timedelta, timezone
 
 # Bot Token အသစ် နှင့် သင့်ရဲ့ အချက်အလက်များ
-BOT_TOKEN = '8628864483:AAFttcJaaNHc0_G5CEp4Qk5-6gNRur_FMI8'
-GITHUB_TOKEN = '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'
-ADMIN_ID = "7673441360"
-REPO_OWNER = "yinnlinhtet-dot"
-REPO_NAME = "my-telegram-bot"
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
+ADMIN_ID = os.environ.get("ADMIN_ID")
+REPO_OWNER = os.environ.get("REPO_OWNER", "yinnlinhtet-dot")
+REPO_NAME = os.environ.get("REPO_NAME", "my-telegram-bot")
+
+for _name, _value in (("BOT_TOKEN", BOT_TOKEN), ("GITHUB_TOKEN", GITHUB_TOKEN), ("ADMIN_ID", ADMIN_ID)):
+    if not _value:
+        raise RuntimeError(f"{_name} environment variable is required")
 ##################
 
 SUCCESS_CODE = asyncio.Queue()
