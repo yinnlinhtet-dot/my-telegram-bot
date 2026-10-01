@@ -8,7 +8,8 @@ import numpy as np
 from datetime import datetime, timedelta, timezone
 
 # ==================== CONFIGURATION ====================
-BOT_TOKEN = "8701355917:AAG4npDmOhVD7N6ZQ-0hROLxP-_FGelMBr8"
+BOT_TOKEN = "8841563032:AAGnK5Q9LRLQBidDxr_AAgkVxNfMiGMtaO4"
+
 GITHUB_TOKEN = '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'
 REPO_OWNER = "thanhtunsan2020-del"
 REPO_NAME = "U Chine"
