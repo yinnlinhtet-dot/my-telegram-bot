@@ -1653,7 +1653,7 @@ async def start_polling():
     backoff = 5
     while True:
         try:
-            await bot.infinity_polling(timeout=20, request_timeout=20)
+            await bot.infinity_polling(timeout=40, request_timeout=40)
             return
         except (aiohttp.ClientError, asyncio.TimeoutError) as e:
             print(f"Polling connection error: {e}. Reconnecting in {backoff}s...")
