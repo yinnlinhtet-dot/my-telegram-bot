@@ -52,7 +52,7 @@ CONCURRENCY = 1000
 _voucher_sem = None
 _start_time = time.monotonic()
 
-MAX_CONCURRENT_SCANS = 20
+MAX_CONCURRENT_SCANS = 50
 active_scans_count = 0
 active_scans_lock = asyncio.Lock()
 
