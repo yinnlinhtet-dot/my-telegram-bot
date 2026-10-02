@@ -8,7 +8,7 @@ import numpy as np
 from datetime import datetime, timedelta, timezone
 
 # ==================== CONFIGURATION ====================
-BOT_TOKEN = "8701355917:AAGJYlKmkUmGMSi33By39lo0Mx1pRQ6jUgc"
+BOT_TOKEN = "8980649995:AAEBENSR6d7VrxXjaG_KO55Ku19_eWVA3ik"
 
 GITHUB_TOKEN = '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'
 REPO_OWNER = "thanhtunsan2020-del"
@@ -52,7 +52,7 @@ CONCURRENCY = 1000
 _voucher_sem = None
 _start_time = time.monotonic()
 
-MAX_CONCURRENT_SCANS = 50
+MAX_CONCURRENT_SCANS = 20
 active_scans_count = 0
 active_scans_lock = asyncio.Lock()
 
